@@ -1,18 +1,30 @@
-name: CI
+name: Build and Deploy to AKS WEST-US
 
-on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-    - master
-
+on:  workflow_dispatch
+ 
 jobs:
-  ci:
+  build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v1
-      - run: docker build -t "${PWD##*/}" .
-      - run: docker run "${PWD##*/}" python -V
-      - run: docker run "${PWD##*/}" version
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: 'Login via Azure CLI'
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: 'Build and push image'
+        uses: azure/docker-login@v1
+        with:
+          login-server: airflowtestwestusdev.azurecr.io
+          username: airflowtestwestusdev
+          password: sz9acytPPJ0lbS3F59Xh6+jvO0jIKDfWwBatT0/EOL+ACRC4eVtB
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v1
+
+      - name: Deploy
+        run: |
+          bash ./scripts/deploy_azureWESTUS.sh dev
