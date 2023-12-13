@@ -27,4 +27,4 @@ jobs:
 
       - name: Deploy
         run: |
-          bash ./scripts/deploy_azureWESTUS.sh dev
+          bash ./script/deploy_azureWESTUS.sh dev
